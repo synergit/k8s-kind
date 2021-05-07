@@ -1,6 +1,6 @@
 
 
-## 11 | 从0到1：搭建一个完整的Kubernetes集群
+## Build a K8s cluster on local machine
 
 The yaml file is updated to 
 ```yaml
@@ -45,8 +45,6 @@ To see the stack trace of this error execute with --v=5 or higher
 </details>
 
 ## kind on MacBook
-
-
 
 <details>
    <summary>Master node `kubectl describe node kind`</summary>
@@ -200,6 +198,58 @@ $ kubectl create secret generic user --from-file=./username.txt
 $ kubectl create secret generic pass --from-file=./password.txt
 ```
 
+## Persistent Volume
+
+[create pv and pvc with local-path-storage](https://github.com/rancher/local-path-provisioner)
+
+```sh
+$kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                    STORAGECLASS   REASON   AGE
+pvc-403a048d-ca13-4b46-a614-02c828c49353   128Mi      RWO            Delete           Bound    default/local-path-pvc   local-path              6m5s
+$kubectl get pvc
+NAME             STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+local-path-pvc   Bound    pvc-403a048d-ca13-4b46-a614-02c828c49353   128Mi      RWO            local-path     11m
+```
+
+change headless-service/web-statefulset.yaml file line 22-33 with `spec.template.spec.container.volumeMount` and `spec.volumeClaimTemplates`
+
+```sh
+# can't change stateful on the fly
+$k apply -f headless-service/web-statefulset.yaml 
+The StatefulSet "web" is invalid: spec: Forbidden: updates to statefulset spec for fields other than 'replicas', 'template', and 'updateStrategy' are forbidden
+```
+
+delete statefulset and create again
+
+```sh
+$k get pvc
+NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+local-path-pvc         Bound    pvc-403a048d-ca13-4b46-a614-02c828c49353   128Mi      RWO            local-path     19m
+local-path-pvc-web-0   Bound    pvc-bacfc1d7-0ff6-407d-869c-184438e140e1   50Mi       RWO            standard       7s
+local-path-pvc-web-1   Bound    pvc-61cd15ca-61e2-4042-ab78-1f973711f601   50Mi       RWO            standard       4s
+
+$k get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                          STORAGECLASS   REASON   AGE
+pvc-403a048d-ca13-4b46-a614-02c828c49353   128Mi      RWO            Delete           Bound    default/local-path-pvc         local-path              15m
+pvc-61cd15ca-61e2-4042-ab78-1f973711f601   50Mi       RWO            Delete           Bound    default/local-path-pvc-web-1   standard                82s
+pvc-bacfc1d7-0ff6-407d-869c-184438e140e1   50Mi       RWO            Delete           Bound    default/local-path-pvc-web-0   standard                85s
+
+$k get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-85cf96fb5d-65t8l   1/1     Running   0          26h
+nginx-deployment-85cf96fb5d-pv5sl   1/1     Running   0          29h
+volume-test                         1/1     Running   0          20m
+web-0                               1/1     Running   0          111s
+web-1                               1/1     Running   0          108s
+
+$for i in 0 1; do kubectl exec web-$i -- sh -c 'echo hello $(hostname) > /usr/share/nginx/html/index.html'; d
+one
+$k exec -it web-0 -- /bin/sh
+# cat /usr/share/nginx/html/index.html  
+hello web-0
+
+```
+
 ### Commands
 
 ```sh
@@ -210,4 +260,18 @@ kubectl config view --minify | grep namespace
 echo 'cGFzc3dvcmQK' | base64
 # decode string
 echo 'cGFzc3dvcmQK' | base64 -d
+
+# monitoring rolling out status
+kubectl rollout status deployment/nginx-deployment
+
+# watch pod creatation `-w`
+kubectl get pods -w -l app=<app selector>
+
 ```
+
+## Read more
+https://github.com/ContainerSolutions/k8s-deployment-strategies
+
+## Nice findings
+
+[how-to-install-git-on-mac-without-xcode](https://superuser.com/questions/322633/how-to-install-git-on-mac-without-xcode)

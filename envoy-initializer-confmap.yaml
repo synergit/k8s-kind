@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-initializer
+# 不难想到，Initializer 要做的工作，就是把这部分 Envoy 相关的字段，
+# 自动添加到用户提交的 Pod 的 API 对象里。可是，用户提交的 Pod 里
+# 本来就有 containers 字段和 volumes 字段，所以 Kubernetes 在处理
+# 这样的更新请求时，就必须使用类似于 git merge 这样的操作，
+# 才能将这两部分内容合并在一起。所以说，在 Initializer 更新用户的 Pod 对象的时候，
+# 必须使用 PATCH API 来完成。而这种 PATCH API，正是声明式 API 最主要的能力。
+data:
+  config: |
+    containers:
+      - name: envoy
+        image: lyft/envoy:845747db88f102c0fd262ab234308e9e22f693a1
+        command: ["/usr/local/bin/envoy"]
+        args:
+          - "--concurrency 4"
+          - "--config-path /etc/envoy/envoy.json"
+          - "--mode serve"
+        ports:
+          - containerPort: 80
+            protocol: TCP
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+        volumeMounts:
+          - name: envoy-conf
+            mountPath: /etc/envoy
+    volumes:
+      - name: envoy-conf
+        configMap:
+          name: envoy

@@ -317,6 +317,10 @@ etcd-operator-646cbffdb6-gwrp4    1/1     Running   0          2m56s
 example-etcd-cluster-5jbbqn56kf   1/1     Running   0          74s
 example-etcd-cluster-7cvtmc9trc   1/1     Running   0          29s
 
+$ k get pvc data-etcd1-d347a1e3-0 -o yaml > pvc-test.yaml
+$ k delete pvc data-etcd1-d347a1e3-0
+$ k apply -f etcd-pvc.yaml  # with 10Mi and storageclass:local-path
+
 ```
 
 ### etcd with IKS via IBM cloud Schematics - IBM Cloud's deployment manager

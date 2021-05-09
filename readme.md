@@ -275,3 +275,50 @@ https://github.com/ContainerSolutions/k8s-deployment-strategies
 ## Nice findings
 
 [how-to-install-git-on-mac-without-xcode](https://superuser.com/questions/322633/how-to-install-git-on-mac-without-xcode)
+
+## demo
+
+### etcd with Kind on localhost
+
+```sh
+$ git clone https://github.com/coreos/etcd-operator
+$ . example/rbac/create_role.sh 
+
+Creating role with ROLE_NAME=etcd-operator, NAMESPACE=default
+Warning: rbac.authorization.k8s.io/v1beta1 ClusterRole is deprecated in v1.17+, unavailable in v1.22+; use rbac.authorization.k8s.io/v1 ClusterRole
+clusterrole.rbac.authorization.k8s.io/etcd-operator created
+Creating role binding with ROLE_NAME=etcd-operator, ROLE_BINDING_NAME=etcd-operator, NAMESPACE=default
+Warning: rbac.authorization.k8s.io/v1beta1 ClusterRoleBinding is deprecated in v1.17+, unavailable in v1.22+; use rbac.authorization.k8s.io/v1 ClusterRoleBinding
+clusterrolebinding.rbac.authorization.k8s.io/etcd-operator created
+-bash: POWERLINE_COMMAND_ARGS: unbound variable
+Saving session...-bash: HISTTIMEFORMAT: unbound variable
+
+[Process completed]
+
+
+$ cd ./etcd-operator
+$ k create -f ./example/deployment.yaml
+$ k get pods
+NAME                             READY   STATUS    RESTARTS   AGE
+etcd-operator-646cbffdb6-gwrp4   1/1     Running   0          12s
+# once pos is running a CRD is created
+$ k get crd
+NAME                                    CREATED AT
+etcdclusters.etcd.database.coreos.com   2021-05-09T20:28:53Z
+$ k apply -f ./example/example-etcd-cluster.yaml
+$ k get pods
+NAME                              READY   STATUS    RESTARTS   AGE
+etcd-operator-646cbffdb6-gwrp4    1/1     Running   0          2m17s
+example-etcd-cluster-5jbbqn56kf   0/1     Running   0          35s
+$ k get pods
+k get pods
+NAME                              READY   STATUS    RESTARTS   AGE
+etcd-operator-646cbffdb6-gwrp4    1/1     Running   0          2m56s
+example-etcd-cluster-5jbbqn56kf   1/1     Running   0          74s
+example-etcd-cluster-7cvtmc9trc   1/1     Running   0          29s
+
+```
+
+### etcd with IKS via IBM cloud Schematics - IBM Cloud's deployment manager
+
+### etcd with OpenShift

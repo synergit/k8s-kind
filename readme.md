@@ -176,8 +176,8 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/a
 [dashboard link](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
 
 ```sh
-kubectl apply -f service-account-admin-user.yaml
-kubectl apply -f cluster-role-binding-admin-user.yaml
+kubectl apply -f ./RBAC/service-account-admin-user.yaml
+kubectl apply -f ./RBAC/cluster-role-binding-admin-user.yaml
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
 # copy the token
 kubectl proxy

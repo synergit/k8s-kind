@@ -250,7 +250,13 @@ hello web-0
 
 ```
 
-### Commands
+## Service
+
+```sh
+k apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.34.1/deploy/static/provider/kind/deploy.yaml
+```
+
+## Commands
 
 ```sh
 # find out current namespace
@@ -268,6 +274,7 @@ kubectl rollout status deployment/nginx-deployment
 kubectl get pods -w -l app=<app selector>
 
 ```
+
 
 ## Read more
 https://github.com/ContainerSolutions/k8s-deployment-strategies

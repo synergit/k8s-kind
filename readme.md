@@ -260,6 +260,12 @@ k apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller
 # find out current namespace
 kubectl config view --minify | grep namespace
 
+# get all namespaces
+k get ns
+
+# change namespace
+k config set-context --current --namespace=<new namespce>
+
 # encode string base64
 echo 'cGFzc3dvcmQK' | base64
 # decode string

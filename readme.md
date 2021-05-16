@@ -1,5 +1,3 @@
-
-
 ## Build a K8s cluster on local machine
 
 The yaml file is updated to 
@@ -275,15 +273,37 @@ kubectl get pods -w -l app=<app selector>
 
 ```
 
+## Demo
 
-## Read more
-https://github.com/ContainerSolutions/k8s-deployment-strategies
+### Switch context
 
-## Nice findings
+```sh
+# context details
+kubectl config --kubeconfig=config-demo view
+# context name
+kubectl config view -o jsonpath='{.contexts[*].name}' | tr " " "\n"
 
-[how-to-install-git-on-mac-without-xcode](https://superuser.com/questions/322633/how-to-install-git-on-mac-without-xcode)
+# check kube context on your local
+cat $HOME/.kube/config
+```
 
-## demo
+```sh
+k config use-context <context name>
+```
+
+```sh
+# login on IKS
+ibmcloud login -a cloud.ibm.com -r us-south -g default -o chloe.wang1 --sso
+# optional command if only one cluster
+ibmcloud ks cluster config --cluster c20um43d087iefqf3dr0ic 
+kubectl config current-context
+```
+
+```sh
+# https://c116-e.us-south.containers.cloud.ibm.com:32336/oauth/token/display
+oc login --token=<vQebYtVW....vQsVkos75JQK9vJI_5_eTE> --server=https://c116-e.us-south.containers.cloud.ibm.com:32496
+oc project chloe-demo-kind-iks-ocp
+```
 
 ### etcd with Kind on localhost
 
@@ -333,3 +353,10 @@ $ k apply -f etcd-pvc.yaml  # with 10Mi and storageclass:local-path
 ### etcd with IKS via IBM cloud Schematics - IBM Cloud's deployment manager
 
 ### etcd with OpenShift
+
+
+## Read more
+https://github.com/ContainerSolutions/k8s-deployment-strategies
+
+## Tricks
+[how-to-install-git-on-mac-without-xcode](https://superuser.com/questions/322633/how-to-install-git-on-mac-without-xcode)
